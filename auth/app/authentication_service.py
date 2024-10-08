@@ -1,3 +1,26 @@
+"""
+authentication_service.py
+
+This module implements a gRPC service for user authentication, including
+registration (SignUp) and login (Login) functionalities. It uses SQLAlchemy
+for database interactions and Werkzeug for secure password hashing.
+The service allows users to register with a username, name, and password,
+and to log in using their credentials. The User data is stored in a PostgreSQL
+database.
+
+Dependencies:
+- grpcio
+- grpcio-tools
+- sqlalchemy
+- werkzeug
+- requests
+- psycopg2-binary
+- grpcio-reflection
+- authentication_pb2 (generated)
+- jwt
+
+@Author: MMB
+"""
 import os
 import jwt
 from datetime import datetime, timedelta, timezone
