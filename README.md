@@ -44,8 +44,8 @@ flowchart LR
     end
 
     B -. 7-Send quote, key, and certificate .-> A    
-    C -. 8-Request certificate .-> A
-    A -. 9-Send back certificate .-> C
+    A -. 8-Request certificate .-> C
+    C -. 9-Send back certificate .-> A
     A -. 10-Establish TLS connection .-> C
 ```
 
