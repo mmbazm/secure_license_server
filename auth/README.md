@@ -8,6 +8,11 @@
   - [Build Docker image of Authentication service and run it](#build-docker-image-of-authentication-service-and-run-it)
     - [A) Method 1:](#a-method-1)
     - [B) Method 2:](#b-method-2)
+  - [Test service](#test-service)
+    - [SignUp endpoint](#signup-endpoint)
+      - [Create new user](#create-new-user)
+      - [Try to create a user while already exist](#try-to-create-a-user-while-already-exist)
+    - [Login endpoint](#login-endpoint)
 
 # Authentication Micro-service
 
@@ -51,8 +56,7 @@ In the directory `auth/` run the following command:
 docker build -t cn-auth .`, and then execute
 ```
 
-There are three ENV variables to set when running the container:
-* `DEVICEREGISTRATION_API_TOKEN`: is the same as `userKey` provided by the client when sending a request to the API
+There are six ENV variables to set when running the container:
 * `DATABASE_USER`: database username, its default value is `postgres`
 * `DATABASE_PASSWORD`: database password for the given user, here is `postgres`
 * `DATABASE_HOST`: database address
@@ -66,3 +70,51 @@ Run the `docker-compose.yml' file with the following command
 sudo docker-compose up --build
 ```
 This will build the appropriate Docker image and run the database and service containers accordingly.
+
+## Test service
+Finally, testing the service through `grpcurl`.
+### SignUp endpoint
+#### Create new user
+```bash
+grpcurl -plaintext -d '{"username": "testuser1", "name": "Test User1", "password": "securepassword"}' localhost:4500
+0 AuthenticationService/SignUp
+```
+Response:
+```bash
+{
+  "user": {
+    "id": 3,
+    "username": "testuser1",
+    "name": "Test User1"
+  }
+}
+```
+#### Try to create a user while already exist
+```bash
+grpcurl -plaintext -d '{"username": "testuser1", "name": "Test User1", "password": "securepassword"}' localhost:4500
+0 AuthenticationService/SignUp
+```
+Response:
+```bash
+ERROR:
+  Code: AlreadyExists
+  Message: Username already exists
+```
+
+
+### Login endpoint
+```bash
+grpcurl -plaintext -d '{"username": "testuser1", "password": "securepassword"}' localhost:45000 AuthenticationServic
+e/Login
+```
+Response:
+```bash
+{
+  "user": {
+    "id": 3,
+    "username": "testuser1",
+    "name": "Test User1"
+  },
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImV4cCI6MTcyODM5NDc5NywidXNlcm5hbWUiOiJ0ZXN0dXNlcjEiLCJuYW1lIjoiVGVzdCBVc2VyMSJ9.XgQSALiV6GE5fSCyeNSfUwAUsp4u_ZVw79mpxEEQOUM"
+}
+```
