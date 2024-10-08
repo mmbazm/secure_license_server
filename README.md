@@ -24,3 +24,61 @@ The following requirements must be taken into account:
 * Extend the implementation by explaining, in a paragraph or more (and with drawings if necessary), the security changes that should be made to safely provision new keys, handle the authentication and establish a communication channel from the user to the enclave. 
 * You can make the assumption that the enclave could be accessible through an IP address or a domain but the client must verify that the TLS certificate provided by the enclave matches the certificate included in the quote from the licensing server before connecting to the enclave. 
 
+## Architecture
+```mermaid
+flowchart LR
+    A["**Client**"] -. 1-SignUp .-> B["**Licensing Service**"]
+    B -. 2-Return(access token) .-> A
+    A -. 3-Login(access_token) .-> B
+    
+    subgraph K["**Kubernetes**"]
+        C["**Enclave Pod**"]
+    end
+    
+    B -. 4-Request to launch Enclave .-> K
+    C -. 5-Transmit certificate .-> B
+    
+    subgraph L["**Licensing Server**"]
+        B -. 5-Request TPM quote .-> D["**TPM**"]
+        D -. 6-Return signed quote .-> B
+    end
+
+    B -. 7-Send quote, key, and certificate .-> A    
+    C -. 8-Request certificate .-> A
+    A -. 9-Send back certificate .-> C
+    A -. 10-Establish TLS connection .-> C
+```
+
+## Sequence Diagram
+This section describes the sequences diagram of `Authentication`service:
+```mermaid
+sequenceDiagram
+    participant Client
+    participant LicensingServer
+    participant TPM
+    participant Kubernetes
+    participant Enclave
+
+    Client->>LicensingServer: 1. SignUp
+    LicensingServer->>Client: 2. Return(access_token)
+    Client->>LicensingServer: 3. Login
+    LicensingServer->>Kubernetes: 4. Request to launch new Enclave
+    Kubernetes->>Enclave: 5. Launch Enclave
+    Enclave->>Enclave: 6. Generate TLS certificate
+    Enclave->>LicensingServer: 7. Securely transmit certificate
+    LicensingServer->>LicensingServer: 8. Calculate hash of Enclave's certificate
+    LicensingServer->>TPM: 9. Request TPM quote (including cert hash in PCR)
+    TPM->>LicensingServer: 10. Return signed quote
+    LicensingServer->>LicensingServer: 11. Prepare response for Client
+    LicensingServer->>Client: 12. Send TPM quote, Public Attestation Key, Enclave's TLS cert
+    Client->>Client: 13. Verify TPM quote using Public Attestation Key
+    Client->>Client: 14. Extract cert hash from quote and compare with received cert
+    alt Verification Succeeds
+        Client->>Enclave: 15. Request TLS certificate
+        Enclave->>Client: 16. Return certificate
+        Client->>Client: 17. Compare certificates
+        Client->>Enclave: 18. Establish secure TLS connection
+    else Verification Fails
+        Client->>Client: 17. Abort connection
+    end
+```
