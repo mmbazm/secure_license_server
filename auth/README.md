@@ -36,6 +36,51 @@ This project consists of various folders and files, as shown in the following tr
 The main components of the application are shown in this diagram:
 
 ## Sequence Diagram
+This section describes the sequences diagram of `Authentication`service:
+```mermaid
+sequenceDiagram
+    actor client
+    participant AuthenticationSRV
+    participant DB ORM
+    participant DB
+    activate AuthenticationSRV
+    AuthenticationSRV->>AuthenticationSRV: initilize_database()
+    AuthenticationSRV->>DB ORM: init_db()
+    AuthenticationSRV->>DB ORM: create_table()
+    critical Establish a connection to DB
+    DB ORM-->DB: connect  
+    end
+    DB -->>DB ORM: response
+    DB ORM->>AuthenticationSRV: true/false
+    deactivate AuthenticationSRV
+    activate AuthenticationSRV
+    client->>AuthenticationSRV: call --> /AuthenticationService/SignUp
+    AuthenticationSRV->>AuthenticationSRV: store_login_event()
+    AuthenticationSRV->>DB ORM: insert_to_db()
+    activate DB ORM
+    critical Establish a connection to DB
+    DB ORM-->DB: connect  
+    end
+
+    DB ORM->>DB: insert()
+    DB -->>DB ORM: response
+
+
+    alt if Error
+      DB ORM-->>DB ORM: return(false)
+    else if OK
+      DB ORM-->>AuthenticationSRV: return(true)
+    end
+    deactivate DB ORM
+    alt if Error
+      AuthenticationSRV-->client: return(ERROR)
+    else if OK
+      AuthenticationSRV-->client: return(User)
+    end
+    deactivate AuthenticationSRV
+
+```
+`Note: Running the container image for the first time will initialize the database.`
 
 # Exprimentation
 This section describe how to run the micro service on a local machine using Docker, and then test the exposed endpoit.
