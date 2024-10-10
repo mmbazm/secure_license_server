@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  svc-enclave:
+    build: .
+    ports:
+      - "55000:55000"
+    depends_on:
+      - svc-db
+    environment:
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_HOST: svc-db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: userdb
+
+  svc-db:
+    image: postgres:13
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+      POSTGRES_DB: userdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 5
