@@ -1,0 +1,9 @@
+grpcio
+grpcio-tools
+grpcio-reflection
+sqlalchemy
+werkzeug
+requests
+psycopg2-binary
+protobuf>=5.28.2
+PyJWT
