@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+service EnclaveOperations {
+    rpc EnclaveLaunch(UserCredentialsRequest) returns (EnclaveLaunchResponse);
+    rpc EnclaveStatus(UserCredentialsRequest) returns (EnclaveStatusResponse);
+}
+
+message UserCredentialsRequest {
+    string username = 1;
+    string access_token = 2;
+}
+
+message EnclaveLaunchResponse {
+    string enclave_name = 1;
+    string access_point = 2;
+    optional bytes tls_certificate = 3;
+    optional bytes public_attestation_key = 4;
+    optional TpmQuote tpm_quote = 5;
+}
+
+message EnclaveStatusResponse {
+    string enclave_status = 1;
+}
+
+message TpmQuote {
+    string tls_certificate_hash = 1;
+    bytes signature = 2;
+}
