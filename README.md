@@ -24,7 +24,6 @@
   - [Application Security](#application-security)
     - [Code Quality](#code-quality)
     - [Image Security](#image-security)
-    - [Software Composition Analysis](#software-composition-analysis)
     - [Static Application Security Testing (SAST)](#static-application-security-testing-sast)
   - [Best Practice](#best-practice)
     - [WorkFlow Git](#workflow-git)
@@ -164,8 +163,8 @@ sequenceDiagram
     Client->>LicensingServer: 1. SignUp
     LicensingServer->>Client: 2. Return(access_token)
     Client->>LicensingServer: 3. Login
-    LicensingServer->>Kubernetes: 4. Request to launch new Enclave
-    LicensingServer->>Kubernetes: 5. Generate TLS certificate
+    LicensingServer->>Kubernetes: 4. Generate TLS certificate
+    LicensingServer->>Kubernetes: 5. Request to launch new Enclave
     Kubernetes->>Enclave: 6. Launch Enclave
     LicensingServer->>LicensingServer: 7. Calculate hash of Enclave's certificate
     LicensingServer->>TPM: 8. Request TPM quote (including cert hash in PCR)
@@ -272,7 +271,7 @@ Tools such as Sonarlint can be employed to enhance code quality from the early s
 
 ### Image Security
 Docker images are scanned by [Trivy](https://trivy.dev/) to identifiy any security vulnerability:
-`sudo trivy image img-auth`
+`trivy image img-auth`
 
 ```
 Total: 128 (UNKNOWN: 0, LOW: 79, MEDIUM: 35, HIGH: 12, CRITICAL: 2)
@@ -747,10 +746,6 @@ Total: 128 (UNKNOWN: 0, LOW: 79, MEDIUM: 35, HIGH: 12, CRITICAL: 2)
 └────────────────────┴─────────────────────┴──────────┴──────────────┴─────────────────────────┴──────────────────┴──────────────────────────────────────────────────────────────┘
 ```
 We can see the base images show 2 critical vulberabilities, and will not be fixed according to Trivy.
-
-### Software Composition Analysis
-Software Composition Analysis (SCA) is an process to identify open source software in a code base. We may use for instance [OWASP Dependency-Check](https://owasp.org/www-project-dependency-check/) for this purpose.
-
 
 ### Static Application Security Testing (SAST)
 For this kind of test, we may leverage tools like SonarQube, CheckMarx, etc.
