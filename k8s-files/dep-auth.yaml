@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+  namespace: tpm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+      - name: auth
+        image: img-auth
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 45000
+        env:
+        - name: DATABASE_USER
+          value: postgres
+        - name: DATABASE_PASSWORD
+          value: postgres
+        - name: DATABASE_HOST
+          value: svc-postgres
+        - name: DATABASE_PORT
+          value: "5432"
+        - name: DATABASE_NAME
+          value: userdb
+        - name: JWT_SECRET_KEY
+          value: SEszq324cdSZ
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-auth
+  namespace: tpm
+spec:
+  selector:
+    app: auth
+  ports:
+  - protocol: TCP
+    port: 45000
+    targetPort: 45000

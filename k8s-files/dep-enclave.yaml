@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enclave
+  namespace: tpm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: enclave
+  template:
+    metadata:
+      labels:
+        app: enclave
+    spec:
+      containers:
+      - name: enclave
+        image: img-enclave
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 55000
+        env:
+        - name: DATABASE_USER
+          value: postgres
+        - name: DATABASE_PASSWORD
+          value: postgres
+        - name: DATABASE_HOST
+          value: svc-postgres
+        - name: DATABASE_PORT
+          value: "5432"
+        - name: DATABASE_NAME
+          value: userdb
+        resources:
+          limits:
+            memory: "128Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-enclave
+  namespace: tpm
+spec:
+  selector:
+    app: enclave
+  ports:
+  - protocol: TCP
+    port: 55000
+    targetPort: 55000
