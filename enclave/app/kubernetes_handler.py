@@ -23,6 +23,7 @@ Dependencies:
 from kubernetes import client, config
 import base64
 
+
 def create_namespace(name):
     """
     Create a new namespace in the Kubernetes cluster.
@@ -56,8 +57,7 @@ def push_tls_certificate_to_kubernetes(
     namespace,
     tls_crt_path,
     tls_key_path
-    ):
-    
+):
     """
     Push TLS certificate and key to Kubernetes as a Secret.
 
@@ -104,15 +104,18 @@ def push_tls_certificate_to_kubernetes(
     try:
         # Create the Secret in Kubernetes
         api_response = api_instance.create_namespaced_secret(namespace, secret)
-        print(f"Secret '{secret_name}' created successfully in namespace '{namespace}'")
+        print(
+            f"Secret '{secret_name}' created successfully in namespace '{namespace}'")
         return api_response
     except client.ApiException as e:
         if e.status == 409:  # Conflict error code, meaning the secret already exists
             print(f"Secret '{secret_name}' already exists. Updating...")
             try:
                 # Update the existing secret
-                api_response = api_instance.replace_namespaced_secret(secret_name, namespace, secret)
-                print(f"Secret '{secret_name}' updated successfully in namespace '{namespace}'")
+                api_response = api_instance.replace_namespaced_secret(
+                    secret_name, namespace, secret)
+                print(
+                    f"Secret '{secret_name}' updated successfully in namespace '{namespace}'")
                 return api_response
             except client.ApiException as update_e:
                 print(f"Error updating secret: {update_e}")
@@ -120,6 +123,7 @@ def push_tls_certificate_to_kubernetes(
         else:
             print(f"Error creating secret: {e}")
             return None
+
 
 def create_pod(pod_name, secret_name, hostname, subdomain, namespace="default", image='alpine', port=443):
     """
@@ -181,10 +185,11 @@ def create_pod(pod_name, secret_name, hostname, subdomain, namespace="default", 
     try:
         api_response = api_instance.create_namespaced_pod(namespace, pod)
         print(f"Pod {pod_name} created successfully")
-        return true
+        return True
     except client.ApiException as e:
         print(f"Error creating pod: {e}")
         return None
+
 
 def check_pod_status(pod_name, namespace="default"):
     """
@@ -210,16 +215,19 @@ def check_pod_status(pod_name, namespace="default"):
 
     try:
         # Get the pod status
-        api_response = api_instance.read_namespaced_pod_status(name=pod_name, namespace=namespace)
-        
+        api_response = api_instance.read_namespaced_pod_status(
+            name=pod_name, namespace=namespace)
+
         # Check if the pod is running
         if api_response.status.phase == 'Running':
             print(f"Pod {pod_name} is running.")
             return True
         else:
-            print(f"Pod {pod_name} is not running. Current status: {api_response.status.phase}")
+            print(
+                f"Pod {pod_name} is not running. Current status: {api_response.status.phase}")
             return False
 
     except client.ApiException as e:
-        print(f"Exception when calling CoreV1Api->read_namespaced_pod_status: {e}")
+        print(
+            f"Exception when calling CoreV1Api->read_namespaced_pod_status: {e}")
         return False
