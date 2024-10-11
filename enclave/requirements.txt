@@ -6,3 +6,4 @@ psycopg2-binary
 protobuf>=5.28.2
 cryptography
 pyOpenSSL
+kubernetes
