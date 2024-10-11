@@ -8,11 +8,11 @@ services:
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     environment:
-      POSTGRES_HOST_AUTH_METHOD: "trust"
       POSTGRES_DB: userdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_MAX_CONNECTIONS: 3
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
