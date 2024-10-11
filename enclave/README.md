@@ -42,7 +42,7 @@ This project consists of various folders and files, as shown in the following tr
 ```
 
 # Sequence Diagram
-This section describes the sequences diagram of `Authentication`service:
+This section describes the sequences diagram of `Enclave`service:
 ```mermaid
 sequenceDiagram
     actor client
@@ -109,7 +109,7 @@ docker run --name cn-postgresql -e POSTGRES_PASSWORD=$DATABASE_PASSWORD -p 5432:
 
 ## Build Docker image of Authentication service and run it
 ### A) Method 1:
-In the directory `auth/` run the following command: 
+In the directory `enclave/` run the following command: 
 ```bash
 docker build -t cn-auth .`, and then execute
 ```
