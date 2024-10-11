@@ -21,7 +21,7 @@
   - [Stack Deployment](#stack-deployment)
   - [Docker Compose](#docker-compose)
   - [Kubernetes](#kubernetes)
-  - [Security](#security)
+  - [Application Security](#application-security)
     - [Code Quality](#code-quality)
     - [Image Security](#image-security)
     - [Software Composition Analysis](#software-composition-analysis)
@@ -138,7 +138,7 @@ flowchart LR
     end
     
     B -. 4-Request to launch Enclave .-> K
-    C -. 5-Transmit certificate .-> B
+    B -. 5-Transmit certificate .-> K
     
     subgraph L["**Licensing Server**"]
         B -. 5-Request TPM quote .-> D["**TPM**"]
@@ -265,7 +265,7 @@ then run the following command, which give us the external IP and port to get ac
 |-----------|-------------------------|-------------|-----------------------------|
 ```
 
-## Security
+## Application Security
 ### Code Quality
 Code quality is an important factor in the software development life cycle (SDLC) due to its direct impact on the reliability, stability and maintainability of the software. Ensuring code quality is paramount to guaranteeing software that functions optimally over time, minimising the time spent on bug fixes and technical debt.
 Tools such as Sonarlint can be employed to enhance code quality from the early stages of development. In this project, Sonarlint and Pylint are utilised within the Visual Studio Code integrated development environment (IDE).
