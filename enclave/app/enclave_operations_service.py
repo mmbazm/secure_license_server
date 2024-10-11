@@ -259,7 +259,7 @@ class EnclaveOperations(enclaveOperations_pb2_grpc.EnclaveOperationsServicer):
             An EnclaveStatusResponse containing the status of the user's enclave.
         """
 
-        config_kubernetes = config["KUBERNETES"]
+        config_kubernetes = config['KUBERNETES']
 
         session = Session()
         try:
@@ -282,7 +282,7 @@ class EnclaveOperations(enclaveOperations_pb2_grpc.EnclaveOperationsServicer):
             else:
                 # Get the status of the user's last enclave
                 kube_enclave_status = kube_helper.check_pod_status(
-                    res_enclaves.enclave_name, config_kubernetes.get("namespace"))
+                    res_enclaves.enclave_name, config_kubernetes.get("NAMESPACE"))
 
                 if kube_enclave_status:
                     return enclaveOperations_pb2.EnclaveStatusResponse(
