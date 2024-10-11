@@ -94,7 +94,6 @@ sequenceDiagram
       EnclaveOperations-->client: enclave_status
     end
 ```
-`Note: Running the container image for the first time will initialize the database.`
 
 # Exprimentation
 This section describe how to run the micro service on a local machine using Docker, and then test the exposed endpoit.
