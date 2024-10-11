@@ -151,7 +151,7 @@ flowchart LR
 ```
 
 ## Sequence Diagram
-This section describes the sequences diagram of `Authentication`service:
+This section describes the sequences diagram of service:
 ```mermaid
 sequenceDiagram
     participant Client
