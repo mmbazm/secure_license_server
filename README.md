@@ -12,8 +12,8 @@
         - [Attestation Key (AK)](#attestation-key-ak)
     - [TPM quote usage in our usecase](#tpm-quote-usage-in-our-usecase)
     - [How to leverage TPM in container (on Kubernetes)](#how-to-leverage-tpm-in-container-on-kubernetes)
-      - [**TPM DaemonSet:**](#tpm-daemonset)
-      - [**Direct TPM Access:**](#direct-tpm-access)
+      - [TPM DaemonSet:](#tpm-daemonset)
+      - [Direct TPM Access:](#direct-tpm-access)
   - [Architecture](#architecture-1)
   - [Sequence Diagram](#sequence-diagram)
 - [Technical Environnement](#technical-environnement)
@@ -107,19 +107,24 @@ The client can generate an enclave TLS certificate when it receives the payload.
 
 ### How to leverage TPM in container (on Kubernetes)
 There are two main approaches for utilizing TPM 2.0 capabilities in containers running on Kubernetes:
-#### **TPM DaemonSet:**
+#### TPM DaemonSet:
 The method entails the deployment of a DaemonSet, which makes TPM functionality available to containers via a gRPC service.
 
 * A privileged DaemonSet pod runs on each node (of Kubernetes) with access to the host's TPM device (`/dev/tpm0`)
     It exposes common TPM operations like key generation, signing, attestation etc. through a gRPC API.
 * Other containers can then access TPM functionality by making gRPC calls to the DaemonSet service, without needing direct TPM access.
 
-#### **Direct TPM Access:**
+```
+The DaemonSet method is generally considered as a more secure and Kubernetes-native solution.
+```
+#### Direct TPM Access:
 This method provides containers with direct access to the TPM device.
 
 * The container is granted access to `/dev/tpm0` through a volume mount. TPM tools and libraries like tpm2-tools are installed in the container image. The container can then directly interact with the TPM using these tools.
 
-**Note:** The DaemonSet method is generally considered as a more secure and Kubernetes-native solution.
+```
+Note: We did not utilise TPM in our scenario as the laptop in question does not have TPM functionality. We assume that the attestation keys are stored in the TPM.
+```
 
 ## Architecture
 ```mermaid
@@ -160,23 +165,22 @@ sequenceDiagram
     LicensingServer->>Client: 2. Return(access_token)
     Client->>LicensingServer: 3. Login
     LicensingServer->>Kubernetes: 4. Request to launch new Enclave
-    Kubernetes->>Enclave: 5. Launch Enclave
-    Enclave->>Enclave: 6. Generate TLS certificate
-    Enclave->>LicensingServer: 7. Securely transmit certificate
-    LicensingServer->>LicensingServer: 8. Calculate hash of Enclave's certificate
-    LicensingServer->>TPM: 9. Request TPM quote (including cert hash in PCR)
-    TPM->>LicensingServer: 10. Return signed quote
-    LicensingServer->>LicensingServer: 11. Prepare response for Client
-    LicensingServer->>Client: 12. Send TPM quote, Public Attestation Key, Enclave's TLS cert
-    Client->>Client: 13. Verify TPM quote using Public Attestation Key
-    Client->>Client: 14. Extract cert hash from quote and compare with received cert
+    LicensingServer->>Kubernetes: 5. Generate TLS certificate
+    Kubernetes->>Enclave: 6. Launch Enclave
+    LicensingServer->>LicensingServer: 7. Calculate hash of Enclave's certificate
+    LicensingServer->>TPM: 8. Request TPM quote (including cert hash in PCR)
+    TPM->>LicensingServer: 9. Return signed quote
+    LicensingServer->>LicensingServer: 10. Prepare response for Client
+    LicensingServer->>Client: 11. Send TPM quote, Public Attestation Key, Enclave's TLS cert
+    Client->>Client: 12. Verify TPM quote using Public Attestation Key
+    Client->>Client: 13. Extract cert hash from quote and compare with received cert
     alt Verification Succeeds
-        Client->>Enclave: 15. Request TLS certificate
-        Enclave->>Client: 16. Return certificate
-        Client->>Client: 17. Compare certificates
-        Client->>Enclave: 18. Establish secure TLS connection
+        Client->>Enclave: 14. Request TLS certificate
+        Enclave->>Client: 15. Return certificate
+        Client->>Client: 16. Compare certificates
+        Client->>Enclave: 17. Establish secure TLS connection
     else Verification Fails
-        Client->>Client: 17. Abort connection
+        Client->>Client: 18. Abort connection
     end
 ```
 # Technical Environnement
