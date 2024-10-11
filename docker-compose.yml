@@ -1,0 +1,62 @@
+---
+services:
+  db:
+    image: postgres:13
+    container_name: cnt-postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+      POSTGRES_DB: userdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      retries: 5
+
+  svc-auth:
+    image: img-auth:latest
+    container_name: cnt-auth
+    build:
+      context: auth
+      dockerfile: Dockerfile
+    ports:
+      - "45000:45000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: userdb
+      JWT_SECRET_KEY: SEszq324cdSZ
+    networks:
+      - enclave-net
+
+  svc-enclave:
+    image: img-enclave:latest
+    container_name: cnt-enclave
+    build:
+      context: enclave
+      dockerfile: Dockerfile
+    ports:
+      - "55000:55000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_NAME: userdb
+    networks:
+      - enclave-net
+
+networks:
+  enclave-net:
+    name: enclave-net
