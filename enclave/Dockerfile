@@ -1,7 +1,8 @@
-FROM python:3.9-slim
+FROM python:3.8-slim
 
 COPY /app /app
 COPY /files /files
+COPY /config /config
 
 # Copy the requirements file into the container
 COPY requirements.txt .
