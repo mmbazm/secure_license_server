@@ -13,9 +13,10 @@ spec:
       labels:
         app: enclave
     spec:
+      serviceAccountName: default
       containers:
       - name: enclave
-        image: img-enclave
+        image: img-enclave:v1.0.0
         imagePullPolicy: Never
         ports:
         - containerPort: 55000
@@ -33,6 +34,10 @@ spec:
         resources:
           limits:
             memory: "128Mi"
+      volumes:
+      - name: enclave-storage
+        persistentVolumeClaim:
+          claimName: enclave-pvc
 
 ---
 apiVersion: v1
@@ -47,3 +52,16 @@ spec:
   - protocol: TCP
     port: 55000
     targetPort: 55000
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: enclave-pvc
+  namespace: tpm
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 128Mi
