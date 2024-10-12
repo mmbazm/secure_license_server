@@ -41,7 +41,7 @@ def create_namespace(name):
     """
 
     try:
-        config.load_kube_config()
+        config.load_incluster_config()
         v1 = client.CoreV1Api()
         namespace = client.V1Namespace(metadata=client.V1ObjectMeta(name=name))
         v1.create_namespace(namespace)
@@ -76,7 +76,7 @@ def push_tls_certificate_to_kubernetes(
     """
 
     # Load Kubernetes configuration
-    config.load_kube_config()
+    config.load_incluster_config()
 
     # Create a Kubernetes API client
     api_instance = client.CoreV1Api()
@@ -125,7 +125,7 @@ def push_tls_certificate_to_kubernetes(
             return None
 
 
-def create_pod(pod_name, secret_name, hostname, subdomain, namespace="default", image='alpine', port=443):
+def create_pod(pod_name, secret_name, hostname, subdomain, namespace="default", image='alpine', port=8081):
     """
     Create a Kubernetes Pod with specified parameters.
 
@@ -149,7 +149,7 @@ def create_pod(pod_name, secret_name, hostname, subdomain, namespace="default", 
     """
 
     # Load Kubernetes configuration
-    config.load_kube_config()
+    config.load_incluster_config()
 
     # Create a Kubernetes API client
     api_instance = client.CoreV1Api()
@@ -175,7 +175,8 @@ def create_pod(pod_name, secret_name, hostname, subdomain, namespace="default", 
                     name=hostname,
                     image=image,
                     ports=[client.V1ContainerPort(container_port=port)],
-                    env_from=env_from_secret
+                    env_from=env_from_secret,
+                    image_pull_policy='IfNotPresent'
                 )
             ]
         )
@@ -208,7 +209,7 @@ def check_pod_status(pod_name, namespace="default"):
     """
 
     # Load Kubernetes configuration
-    config.load_kube_config()
+    config.load_incluster_config()
 
     # Create an instance of the API class
     api_instance = client.CoreV1Api()
