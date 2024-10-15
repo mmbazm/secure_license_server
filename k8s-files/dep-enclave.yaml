@@ -16,7 +16,7 @@ spec:
       serviceAccountName: default
       containers:
       - name: enclave
-        image: img-enclave:v1.0.0
+        image: img-enclave:v2.0.0
         imagePullPolicy: Never
         ports:
         - containerPort: 55000
@@ -31,6 +31,8 @@ spec:
           value: "5432"
         - name: DATABASE_NAME
           value: userdb
+        - name: PLATFORM
+          value: k8s
         resources:
           limits:
             memory: "128Mi"

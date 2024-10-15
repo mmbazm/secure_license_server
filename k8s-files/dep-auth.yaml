@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: auth
-        image: img-auth
+        image: img-auth:v2.0.0
         imagePullPolicy: Never
         ports:
         - containerPort: 45000
@@ -35,7 +35,6 @@ spec:
         resources:
           limits:
             memory: "128Mi"
-            cpu: "500m"
 
 ---
 apiVersion: v1
