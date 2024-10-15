@@ -37,7 +37,7 @@ from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.primitives import serialization,hashes
+from cryptography.hazmat.primitives import serialization, hashes
 from datetime import datetime, timedelta
 from OpenSSL import crypto
 import binascii
@@ -82,11 +82,13 @@ def generate_root_certificate():
     cert.add_extensions([
         crypto.X509Extension(b"basicConstraints", True, b"CA:TRUE, pathlen:0"),
         crypto.X509Extension(b"keyUsage", True, b"keyCertSign, cRLSign"),
-        crypto.X509Extension(b"subjectKeyIdentifier", False, b"hash", subject=cert),
+        crypto.X509Extension(b"subjectKeyIdentifier",
+                             False, b"hash", subject=cert),
     ])
 
     cert.add_extensions([
-        crypto.X509Extension(b"authorityKeyIdentifier", False, b"keyid:always", issuer=cert),
+        crypto.X509Extension(b"authorityKeyIdentifier",
+                             False, b"keyid:always", issuer=cert),
     ])
 
     cert.sign(key, "sha256")
@@ -146,9 +148,11 @@ def generate_server_certificate(root_cert_path, root_key_path, server_name):
 
     server_cert.add_extensions([
         crypto.X509Extension(b"basicConstraints", False, b"CA:FALSE"),
-        crypto.X509Extension(b"keyUsage", True, b"digitalSignature, keyEncipherment"),
+        crypto.X509Extension(
+            b"keyUsage", True, b"digitalSignature, keyEncipherment"),
         crypto.X509Extension(b"extendedKeyUsage", False, b"serverAuth"),
-        crypto.X509Extension(b"subjectAltName", False, f"DNS:{server_name}".encode()),
+        crypto.X509Extension(b"subjectAltName", False,
+                             f"DNS:{server_name}".encode()),
     ])
 
     server_cert.sign(root_key, 'sha256')
@@ -202,6 +206,7 @@ def extract_public_key(root_cert_path):
     print(f"Public key extracted and saved to {public_key_path}")
     return public_key_path
 
+
 def generate_hash_crt_file(crt_file_path):
     """
     Calculate the SHA-256 hash of a .crt certificate file.
@@ -223,9 +228,10 @@ def generate_hash_crt_file(crt_file_path):
     with open(crt_file_path, 'rb') as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
-    
+
     # Return hexadecimaldigest of the hash
     return sha256_hash.hexdigest()
+
 
 def generate_attestation_keys(attestation_private_key_name, attestation_public_key_name):
     """
@@ -247,20 +253,20 @@ def generate_attestation_keys(attestation_private_key_name, attestation_public_k
         public_exponent=65537,
         key_size=2048
     )
-    
+
     # Extract the public key
     public_key = private_key.public_key()
-    
+
     # Serialize the public key to PEM format
     pem_public_key = public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
-    
+
     # Save the public key to a file
     with open(f"{attestation_public_key_name}.pem", "wb") as f:
         f.write(pem_public_key)
-    
+
     # Serialize and Save the private key
     private_pem = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
@@ -269,7 +275,7 @@ def generate_attestation_keys(attestation_private_key_name, attestation_public_k
     )
     with open(f"{attestation_private_key_name}.pem", "wb") as f:
         f.write(private_pem)
-    
+
     print("Attestation keys generated and saved.")
 
 
@@ -397,6 +403,7 @@ def sign_hash_with_private_key(hash_value, private_key_path):
     # Encode the encrypted value to base64 for easier handling
     return base64.b64encode(encrypted)
 
+
 def verify_hash_with_public_key(encrypted_hash, original_hash, public_key_path):
     """
     Verify a signed hash using an RSA public key.
@@ -439,3 +446,6 @@ def verify_hash_with_public_key(encrypted_hash, original_hash, public_key_path):
     except Exception as e:
         print(f"Signature verification failed: {str(e)}")
         return False
+
+
+print(generate_hash_crt_file('tls.crt'))
