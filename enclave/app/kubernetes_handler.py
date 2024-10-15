@@ -22,6 +22,10 @@ Dependencies:
 
 from kubernetes import client, config
 import base64
+import os
+
+
+platform = os.environ['PLATFORM']
 
 
 def create_namespace(name):
@@ -41,7 +45,12 @@ def create_namespace(name):
     """
 
     try:
-        config.load_incluster_config()
+
+        if platform == 'k8s':
+            config.load_incluster_config()
+        else:
+            config.load_kube_config()
+
         v1 = client.CoreV1Api()
         namespace = client.V1Namespace(metadata=client.V1ObjectMeta(name=name))
         v1.create_namespace(namespace)
@@ -76,7 +85,11 @@ def push_tls_certificate_to_kubernetes(
     """
 
     # Load Kubernetes configuration
-    config.load_incluster_config()
+
+    if platform == 'k8s':
+        config.load_incluster_config()
+    else:
+        config.load_kube_config()
 
     # Create a Kubernetes API client
     api_instance = client.CoreV1Api()
@@ -149,7 +162,10 @@ def create_pod(pod_name, secret_name, hostname, subdomain, namespace="default", 
     """
 
     # Load Kubernetes configuration
-    config.load_incluster_config()
+    if platform == 'k8s':
+        config.load_incluster_config()
+    else:
+        config.load_kube_config()
 
     # Create a Kubernetes API client
     api_instance = client.CoreV1Api()
@@ -209,7 +225,10 @@ def check_pod_status(pod_name, namespace="default"):
     """
 
     # Load Kubernetes configuration
-    config.load_incluster_config()
+    if platform == 'k8s':
+        config.load_incluster_config()
+    else:
+        config.load_kube_config()
 
     # Create an instance of the API class
     api_instance = client.CoreV1Api()
