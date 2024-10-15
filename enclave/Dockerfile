@@ -1,5 +1,7 @@
 FROM python:3.8-slim
 
+ENV PLATFORM='DOCKER'
+
 COPY /app /app
 COPY /files /files
 COPY /config /config
